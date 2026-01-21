@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { STRATEGIES } from './constants.tsx';
 import { Header, Footer } from './components/Layout.tsx';
@@ -161,11 +160,6 @@ const LPSection: React.FC<{ data: LPData }> = ({ data }) => {
               見積もりシミュレーション
             </button>
           </div>
-          <div className="mt-16 flex flex-wrap justify-center gap-8 opacity-40 grayscale">
-            {['経済産業省適合', '台湾政府No.1', '2800+実績'].map(badge => (
-              <span key={badge} className="text-sm font-black text-slate-900 uppercase tracking-tighter">{badge}</span>
-            ))}
-          </div>
         </div>
       </section>
     </div>
@@ -178,7 +172,8 @@ const App: React.FC = () => {
     return STRATEGIES.find(s => s.id === hash) ? hash : STRATEGIES[0].id;
   });
   const [isCopied, setIsCopied] = useState(false);
-  const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const [isPromptCopied, setIsPromptCopied] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -198,44 +193,41 @@ const App: React.FC = () => {
 
   const currentData = STRATEGIES.find(s => s.id === activeStrategy) || STRATEGIES[0];
 
-  const generateReviewText = () => {
+  const generateCanvaPrompt = () => {
+    const visualGuides: Record<string, any> = {
+      'pattern-1': { style: '信頼と権威（Corporate Trust）', colors: 'ネイビー、ゴールド、白', img: 'サーバーールームを見守るプロフェッショナル、盾のメタファー' },
+      'pattern-2': { style: '明快とスピード（Efficiency）', colors: 'スカイブルー、ライトグレー、ライムグリーン', img: 'デジタル化されたオフィス、時計のアイコン、軽快なネットワークライン' },
+      'pattern-3': { style: '先進と警告（Cyber Edge）', colors: 'ブラック、ネオンブルー、警告色', img: '暗闇に浮かぶ光るネットワーク網、ゲートを突破しようとする攻撃を跳ね返す光' },
+      'pattern-4': { style: '親しみと解放（Relief/Support）', colors: 'ホワイト、パステルブルー、明るいベージュ', img: '穏やかな表情のエンジニア、空を見上げる女性、鍵の形をしたパズル' },
+      'pattern-5': { style: '圧倒的技術（High-Tech/AI）', colors: '深い藍色、サイバーシアン、バイオレット', img: '脳を模した回路図、光り輝くDNA、Deep Learningの視覚化' },
+    };
+    const guide = visualGuides[currentData.id];
+
     return `
-【LP構成パターン: ${currentData.label}】
-戦略：${currentData.strategy}
+【Canva Magic Media用 デザインプロンプト】
+目的: IT B2B サービス (WAF) のランディングページ用
+デザインスタイル: ${guide.style}
 
-■メインビジュアル
-見出し：${currentData.hero.title}
-サブタイトル：${currentData.hero.subtitle}
+[画像生成プロンプト]
+Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimalist composition, photorealistic, 4k, professional lighting, corporate color palette with ${guide.colors}.
 
-■料金
-初期費用：${currentData.pricing.initial}
-月額費用：${currentData.pricing.monthly}
+[レイアウト構成案]
+1. Hero: 左側に強力な見出し、右側に上記プロンプトで生成した画像を配置。
+2. CTA: 視認性の高い ${guide.colors.split('、')[0]} のボタン。
+3. Fonts: Noto Sans JP (Bold) または Montserrat (Bold) を使用。
 
----
-【レビュー内容を入力してください】
+[配色コード例]
+- Primary: #0a192f (Deep Navy)
+- Secondary: #2563eb (Royal Blue)
+- Accent: #fbbf24 (Highlight Gold)
     `.trim();
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generateReviewText()).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+  const copyToClipboard = (text: string, setFn: (v: boolean) => void) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setFn(true);
+      setTimeout(() => setFn(false), 2000);
     });
-  };
-
-  const copyLinkToClipboard = () => {
-    const url = `${window.location.origin}${window.location.pathname}#${activeStrategy}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setIsLinkCopied(true);
-      setTimeout(() => setIsLinkCopied(false), 2000);
-    });
-  };
-
-  const openGitHubIssue = () => {
-    const title = encodeURIComponent(`【レビュー】LP案：${currentData.label}`);
-    const body = encodeURIComponent(generateReviewText());
-    const githubUrl = `https://github.com/ourakawa/LP-for-MA/issues/new?title=${title}&body=${body}`;
-    window.open(githubUrl, '_blank');
   };
 
   return (
@@ -247,37 +239,27 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
-              <div className="hidden sm:block text-nowrap">
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 leading-none">
-                  Review Pattern
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-bold text-slate-900">{currentData.label}</span>
-                </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">構成案</span>
+                <span className="text-sm font-bold text-slate-900">{currentData.label}</span>
               </div>
-              <div className="h-10 w-px bg-slate-200 hidden sm:block"></div>
-              <div>
-                <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1 leading-none">
-                  Strategic Intent
-                </div>
-                <div className="text-sm font-bold text-slate-600">{currentData.strategy}</div>
+              <div className="h-8 w-px bg-slate-200"></div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">戦略</span>
+                <span className="text-sm font-bold text-slate-600">{currentData.strategy}</span>
               </div>
             </div>
             
-            <nav className="flex items-center p-1 bg-slate-100 rounded-xl overflow-x-auto no-scrollbar scroll-smooth">
+            <nav className="flex items-center p-1 bg-slate-100 rounded-xl overflow-x-auto no-scrollbar">
               {STRATEGIES.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => handleStrategyChange(s.id)}
-                  className={`whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black transition-all duration-200 ${
-                    activeStrategy === s.id 
-                      ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200' 
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                  className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-black transition-all ${
+                    activeStrategy === s.id ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeStrategy === s.id ? 'bg-blue-600' : 'bg-slate-300'}`}></span>
-                  {s.label.split(' ')[0]}
+                  {s.label}
                 </button>
               ))}
             </nav>
@@ -286,53 +268,90 @@ const App: React.FC = () => {
       </div>
 
       <main className="flex-grow">
-        {/* Review Insight Card */}
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="bg-blue-600 text-white p-6 rounded-[2rem] shadow-xl shadow-blue-200 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
-            <div className="relative z-10">
-              <h3 className="text-lg font-black mb-1">このパターンの戦略的狙い</h3>
-              <p className="text-blue-100 text-sm max-w-2xl leading-relaxed font-medium">
-                {currentData.id === 'pattern-1' && '競合の安心感を「技術的な信頼」に変換。IT知識がなくても「ここなら大丈夫」と思わせるエモーショナルな訴求。'}
-                {currentData.id === 'pattern-2' && '初期コストだけでなく、SOC監視やSSL更新まで含めたトータルコストの優位性をロジカルに示すコスパ訴求。'}
-                {currentData.id === 'pattern-3' && 'VPNのリスクが叫ばれる昨今の社会情勢をフックに、経営層や情シスにWAFの必要性を再定義させる課題解決型。'}
-                {currentData.id === 'pattern-4' && '多忙な担当者のペインに寄り添い、SSL更新やログ監視を「手放せる」ことの心理的メリットを強調した運用代行訴求。'}
-                {currentData.id === 'pattern-5' && '技術者やCTOに向け、AIとホワイトハッカーの知見という強力なUSPを前面に出したハイスペック訴求。'}
-              </p>
+          {/* Action Tools */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-blue-600 text-white p-6 rounded-3xl flex flex-col justify-between shadow-xl shadow-blue-200">
+              <p className="text-sm font-medium opacity-90 mb-4">この案の戦略目標：</p>
+              <h3 className="text-lg font-black leading-tight mb-4">
+                {currentData.id === 'pattern-1' && '技術知識がない層にも「ここなら安心」と直感させる'}
+                {currentData.id === 'pattern-2' && 'トータルコストの低さを強調し、比較検討を促す'}
+                {currentData.id === 'pattern-3' && 'VPN依存の危うさを突き、最新対策の必要性を説く'}
+                {currentData.id === 'pattern-4' && '面倒な運用から「解放される」メリットを強調する'}
+                {currentData.id === 'pattern-5' && 'AIの検知力と技術力で競合との格の違いを見せる'}
+              </h3>
             </div>
-            <div className="flex flex-wrap shrink-0 gap-2 relative z-10">
+            
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 flex flex-col justify-center gap-3">
               <button 
-                onClick={copyLinkToClipboard}
-                className={`px-5 py-3 rounded-xl text-xs font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
-                  isLinkCopied ? 'bg-green-500 text-white' : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
+                onClick={() => copyToClipboard(currentData.hero.title + '\n' + currentData.hero.subtitle, setIsCopied)}
+                className={`w-full py-3 rounded-xl text-xs font-black border transition-all ${
+                  isCopied ? 'bg-green-500 border-green-500 text-white' : 'bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100'
                 }`}
               >
-                {isLinkCopied ? 'URLをコピーしました' : 'この案を共有'}
+                {isCopied ? '原稿をコピーしました' : '構成原稿をコピー'}
               </button>
               <button 
-                onClick={copyToClipboard}
-                className={`px-5 py-3 rounded-xl text-xs font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
-                  isCopied ? 'bg-green-500 text-white' : 'bg-white text-blue-600 hover:bg-blue-50'
-                }`}
+                onClick={() => setShowPromptModal(true)}
+                className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
               >
-                {isCopied ? 'コピー完了' : '原稿コピー'}
+                <span>🎨</span> Canva用プロンプトを生成
               </button>
+            </div>
+
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 flex flex-col justify-center items-center text-center">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">フィードバック</span>
               <button 
-                onClick={openGitHubIssue}
-                className="px-5 py-3 bg-slate-900 text-white rounded-xl text-xs font-black shadow-lg hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2 border border-slate-700"
+                onClick={() => window.open('https://github.com/ourakawa/LP-for-MA/issues/new', '_blank')}
+                className="text-sm font-bold text-blue-600 hover:underline"
               >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                GitHubレビュー
+                GitHub Issueでレビューを送る
               </button>
             </div>
           </div>
 
-          {/* LP Preview Frame */}
-          <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden ring-1 ring-slate-200 ring-offset-8 ring-offset-slate-100">
+          {/* Preview */}
+          <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden ring-1 ring-slate-200 ring-offset-4 ring-offset-slate-100">
             <LPSection data={currentData} />
           </div>
         </div>
       </main>
+
+      {/* Canva Prompt Modal */}
+      {showPromptModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-8 border-b border-slate-100 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Canva デザインプロンプト</h3>
+                <p className="text-sm text-slate-500 mt-1">{currentData.label} 用のビジュアル構成</p>
+              </div>
+              <button onClick={() => setShowPromptModal(false)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">✕</button>
+            </div>
+            <div className="p-8">
+              <pre className="bg-slate-50 p-6 rounded-2xl text-xs font-mono text-slate-700 leading-relaxed overflow-x-auto whitespace-pre-wrap h-80">
+                {generateCanvaPrompt()}
+              </pre>
+              <div className="mt-8 flex gap-4">
+                <button 
+                  onClick={() => copyToClipboard(generateCanvaPrompt(), setIsPromptCopied)}
+                  className={`flex-grow py-4 rounded-2xl text-sm font-black transition-all ${
+                    isPromptCopied ? 'bg-green-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-500'
+                  }`}
+                >
+                  {isPromptCopied ? 'プロンプトをコピーしました' : 'プロンプトをすべてコピー'}
+                </button>
+                <button 
+                  onClick={() => window.open('https://www.canva.com/', '_blank')}
+                  className="px-8 py-4 bg-slate-100 text-slate-900 rounded-2xl text-sm font-black hover:bg-slate-200 transition-all"
+                >
+                  Canvaを開く
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
