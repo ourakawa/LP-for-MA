@@ -24,10 +24,13 @@
 <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
     
-    <!-- esm.sh/run: TypeScript/TSXをブラウザで直接実行するための軽量ローダー -->
+    <!-- 
+      esm.sh/run は、TypeScript/TSXをブラウザで即座に実行するモジュールローダーです。
+      手動の importmap があると競合して実行が止まるため、このタグのみを使用します。
+    -->
     <script type="module" src="https://esm.sh/run"></script>
 
-    <!-- エントリーポイント -->
+    <!-- エントリーポイントの指定 -->
     <script type="text/tsx" src="index.tsx"></script>
 </body>
 </html>

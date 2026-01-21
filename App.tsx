@@ -195,31 +195,36 @@ const App: React.FC = () => {
 
   const generateCanvaPrompt = () => {
     const visualGuides: Record<string, any> = {
-      'pattern-1': { style: '信頼と権威（Corporate Trust）', colors: 'ネイビー、ゴールド、白', img: 'サーバーールームを見守るプロフェッショナル、盾のメタファー' },
-      'pattern-2': { style: '明快とスピード（Efficiency）', colors: 'スカイブルー、ライトグレー、ライムグリーン', img: 'デジタル化されたオフィス、時計のアイコン、軽快なネットワークライン' },
-      'pattern-3': { style: '先進と警告（Cyber Edge）', colors: 'ブラック、ネオンブルー、警告色', img: '暗闇に浮かぶ光るネットワーク網、ゲートを突破しようとする攻撃を跳ね返す光' },
-      'pattern-4': { style: '親しみと解放（Relief/Support）', colors: 'ホワイト、パステルブルー、明るいベージュ', img: '穏やかな表情のエンジニア、空を見上げる女性、鍵の形をしたパズル' },
-      'pattern-5': { style: '圧倒的技術（High-Tech/AI）', colors: '深い藍色、サイバーシアン、バイオレット', img: '脳を模した回路図、光り輝くDNA、Deep Learningの視覚化' },
+      'pattern-1': { style: '信頼と権威（Corporate Trust）', colors: 'ネイビー、シルバー、白', img: 'サーバーールームを見守る専門家、盾のメタファー、強固な城壁' },
+      'pattern-2': { style: 'コスト効率とスマート（Modern Efficiency）', colors: 'スカイブルー、ホワイト、グレー', img: '明るいオフィス、スマートなダッシュボード、上昇する折れ線グラフ' },
+      'pattern-3': { style: '最先端と脱却（Cyber Innovation）', colors: 'ブラック、ネオンブルー、シアン', img: '光輝くネットワークライン、デジタルワールドのゲート、古い鍵からデジタル認証へ' },
+      'pattern-4': { style: '解放と安心（Peace of Mind）', colors: 'ライトブルー、ベージュ、ソフトグリーン', img: 'リラックスしたエンジニア、青空、パズルがピタッとハマる瞬間' },
+      'pattern-5': { style: 'AIテクノロジー（High-Tech / AI Future）', colors: 'ディープネイビー、エレクトリックパープル', img: '脳を模したネットワーク回路、AIの光、Deep Learningの3D表現' },
     };
     const guide = visualGuides[currentData.id] || visualGuides['pattern-1'];
 
     return `
 【Canva Magic Media用 デザインプロンプト】
-目的: IT B2B サービス (WAF) のランディングページ用
-デザインスタイル: ${guide.style}
+目的: IT B2B サービス (WAF) のLPデザイン案作成
+ターゲット: IT企業の決済権者、情シス担当者
 
-[画像生成プロンプト (英語)]
-Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimalist composition, photorealistic, 4k, professional lighting, corporate color palette with ${guide.colors}.
+[1. 画像生成用プロンプト (AI画像生成で使用)]
+Professional high-quality 3D render, ${guide.img}, cyber security concept, ${guide.style} aesthetics, corporate color palette with ${guide.colors}, 8k resolution, cinematic lighting, clean minimalist layout.
 
-[レイアウト構成案]
-1. Hero: 左側に強力な見出し（${currentData.hero.title}）、右側に生成した画像を配置。
-2. 背景色: ${guide.colors.split('、')[0]}系のグラデーション。
-3. Fonts: Noto Sans JP (Bold) をメインで使用。
+[2. レイアウト指示]
+- レイアウト: Zパターン（左に見出し、右にビジュアル）
+- メイン見出し: 「${currentData.hero.title}」
+- サブテキスト: 「${currentData.hero.subtitle}」
+- 強調カラー: ${guide.colors.split('、')[0]}
 
-[配色コード例]
-- Base: #f8fafc (Slate 50)
-- Brand: #2563eb (Blue 600)
-- Dark: #0f172a (Slate 900)
+[3. 使用フォント案]
+- 見出し: Noto Sans JP (Black) または 筑紫A丸ゴシック (ExtraBold)
+- 本文: Noto Sans JP (Medium)
+
+[4. 配色コード]
+- メイン: #0a192f (Deep Blue)
+- アクセント: #2563eb (Royal Blue)
+- ベース: #ffffff (White)
     `.trim();
   };
 
@@ -274,11 +279,11 @@ Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimal
             <div className="bg-blue-600 text-white p-6 rounded-3xl flex flex-col justify-between shadow-xl shadow-blue-200">
               <p className="text-sm font-medium opacity-90 mb-4">この案の戦略目標：</p>
               <h3 className="text-lg font-black leading-tight mb-4">
-                {currentData.id === 'pattern-1' && '技術知識がない層にも「ここなら安心」と直感させる'}
-                {currentData.id === 'pattern-2' && 'トータルコストの低さを強調し、比較検討を促す'}
-                {currentData.id === 'pattern-3' && 'VPN依存の危うさを突き、最新対策の必要性を説く'}
-                {currentData.id === 'pattern-4' && '面倒な運用から「解放される」メリットを強調する'}
-                {currentData.id === 'pattern-5' && 'AIの検知力と技術力で競合との格の違いを見せる'}
+                {currentData.id === 'pattern-1' && '「実績とプロの目」による圧倒的な信頼感で顧客を囲い込む'}
+                {currentData.id === 'pattern-2' && '他社比較でのトータルコストメリットを数値を交えて強調'}
+                {currentData.id === 'pattern-3' && 'VPNのリスクを指摘し、モダンなセキュリティへの刷新を提案'}
+                {currentData.id === 'pattern-4' && '「情シスの手間をゼロにする」という実利的なベネフィット訴求'}
+                {currentData.id === 'pattern-5' && 'AIとハッカーの知見という独自の技術優位性で競合を突き放す'}
               </h3>
             </div>
             
@@ -295,7 +300,7 @@ Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimal
                 onClick={() => setShowPromptModal(true)}
                 className="w-full py-3 bg-slate-900 text-white rounded-xl text-xs font-black hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
               >
-                <span>🎨</span> Canva用プロンプトを生成
+                <span>🎨</span> Canva用デザインプロンプトを表示
               </button>
             </div>
 
@@ -323,8 +328,8 @@ Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimal
           <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-8 border-b border-slate-100 flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-black text-slate-900">Canva デザインプロンプト</h3>
-                <p className="text-sm text-slate-500 mt-1">{currentData.label} 用のビジュアル構成</p>
+                <h3 className="text-xl font-black text-slate-900">Canva デザイン指示書</h3>
+                <p className="text-sm text-slate-500 mt-1">{currentData.label} のビジュアルガイド</p>
               </div>
               <button onClick={() => setShowPromptModal(false)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">✕</button>
             </div>
@@ -339,7 +344,7 @@ Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimal
                     isPromptCopied ? 'bg-green-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-500'
                   }`}
                 >
-                  {isPromptCopied ? 'プロンプトをコピーしました' : 'プロンプトをすべてコピー'}
+                  {isPromptCopied ? 'コピー完了！' : 'プロンプトをすべてコピー'}
                 </button>
                 <button 
                   onClick={() => window.open('https://www.canva.com/', '_blank')}
