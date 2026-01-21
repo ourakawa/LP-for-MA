@@ -1,5 +1,5 @@
 
-import { LPData } from './types';
+import { LPData } from './types.ts';
 
 export const STRATEGIES: LPData[] = [
   {

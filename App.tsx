@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { STRATEGIES } from './constants';
-import { Header, Footer } from './components/Layout';
-import { LPData } from './types';
+import { STRATEGIES } from './constants.tsx';
+import { Header, Footer } from './components/Layout.tsx';
+import { LPData } from './types.ts';
 
 const LPSection: React.FC<{ data: LPData }> = ({ data }) => {
   return (
@@ -234,7 +234,6 @@ const App: React.FC = () => {
   const openGitHubIssue = () => {
     const title = encodeURIComponent(`【レビュー】LP案：${currentData.label}`);
     const body = encodeURIComponent(generateReviewText());
-    // スクリーンショットに合わせて LP-for-MA に修正
     const githubUrl = `https://github.com/ourakawa/LP-for-MA/issues/new?title=${title}&body=${body}`;
     window.open(githubUrl, '_blank');
   };
