@@ -14,9 +14,9 @@
 <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
@@ -25,10 +25,9 @@
     <div id="root"></div>
     
     <!-- esm.sh/run: TypeScript/TSXをブラウザで直接実行するための軽量ローダー -->
-    <!-- importmapとの競合を避けるため、これ単体で使用します -->
     <script type="module" src="https://esm.sh/run"></script>
 
-    <!-- index.tsxをエントリーポイントとして指定 -->
+    <!-- エントリーポイント -->
     <script type="text/tsx" src="index.tsx"></script>
 </body>
 </html>

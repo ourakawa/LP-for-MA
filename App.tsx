@@ -201,25 +201,25 @@ const App: React.FC = () => {
       'pattern-4': { style: '親しみと解放（Relief/Support）', colors: 'ホワイト、パステルブルー、明るいベージュ', img: '穏やかな表情のエンジニア、空を見上げる女性、鍵の形をしたパズル' },
       'pattern-5': { style: '圧倒的技術（High-Tech/AI）', colors: '深い藍色、サイバーシアン、バイオレット', img: '脳を模した回路図、光り輝くDNA、Deep Learningの視覚化' },
     };
-    const guide = visualGuides[currentData.id];
+    const guide = visualGuides[currentData.id] || visualGuides['pattern-1'];
 
     return `
 【Canva Magic Media用 デザインプロンプト】
 目的: IT B2B サービス (WAF) のランディングページ用
 デザインスタイル: ${guide.style}
 
-[画像生成プロンプト]
+[画像生成プロンプト (英語)]
 Cybersecurity concept art, ${guide.img}, high-tech aesthetics, clean and minimalist composition, photorealistic, 4k, professional lighting, corporate color palette with ${guide.colors}.
 
 [レイアウト構成案]
-1. Hero: 左側に強力な見出し、右側に上記プロンプトで生成した画像を配置。
-2. CTA: 視認性の高い ${guide.colors.split('、')[0]} のボタン。
-3. Fonts: Noto Sans JP (Bold) または Montserrat (Bold) を使用。
+1. Hero: 左側に強力な見出し（${currentData.hero.title}）、右側に生成した画像を配置。
+2. 背景色: ${guide.colors.split('、')[0]}系のグラデーション。
+3. Fonts: Noto Sans JP (Bold) をメインで使用。
 
 [配色コード例]
-- Primary: #0a192f (Deep Navy)
-- Secondary: #2563eb (Royal Blue)
-- Accent: #fbbf24 (Highlight Gold)
+- Base: #f8fafc (Slate 50)
+- Brand: #2563eb (Blue 600)
+- Dark: #0f172a (Slate 900)
     `.trim();
   };
 
