@@ -24,9 +24,9 @@
 <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
     <!-- 
-      Vite + Cloudflare Pages のビルドフローでは標準的なモジュールインポートのみを使用します。
-      esm.sh/run や手動の importmap はビルド結果と競合するため削除しました。
+      Cloudflare Pages (Vite) 環境では、ビルドプロセスが依存関係を処理します。
+      ビルドエラーを避けるため、直接 index.tsx をインポートします。
     -->
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
