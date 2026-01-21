@@ -1,0 +1,12 @@
+{
+  "name": "LP-for-MA",
+  "main": "worker.ts",
+  "compatibility_date": "2026-01-21",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
