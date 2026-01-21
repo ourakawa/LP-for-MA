@@ -203,6 +203,39 @@ ${currentData.authority.items.join(' / ')}
     });
   };
 
+  const exportToCSV = () => {
+    // CSV Header
+    const headers = ['PatternName', 'Strategy', 'HeroTitle', 'HeroSubtitle', 'HeroCTA', 'PriceInitial', 'PriceMonthly', 'SpecialOffer'];
+    
+    // CSV Data rows
+    const rows = STRATEGIES.map(s => [
+      s.label,
+      s.strategy,
+      s.hero.title,
+      s.hero.subtitle,
+      s.hero.cta,
+      s.pricing.initial,
+      s.pricing.monthly,
+      s.pricing.offer
+    ]);
+
+    // Construct CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    // Create download link
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `ray-soc-lp-data.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-100">
       <Header />
@@ -265,23 +298,25 @@ ${currentData.authority.items.join(' / ')}
                 {currentData.id === 'pattern-5' && '技術者やCTOに向け、AIとホワイトハッカーの知見という強力なUSPを前面に出したハイスペック訴求。'}
               </p>
             </div>
-            <button 
-              onClick={copyToClipboard}
-              className={`shrink-0 px-6 py-3 rounded-xl text-sm font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
-                isCopied 
-                ? 'bg-green-500 text-white' 
-                : 'bg-white text-blue-600 hover:bg-blue-50'
-              }`}
-            >
-              {isCopied ? (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                  コピー完了
-                </>
-              ) : (
-                '原稿をコピー'
-              )}
-            </button>
+            <div className="flex shrink-0 gap-2">
+              <button 
+                onClick={copyToClipboard}
+                className={`px-6 py-3 rounded-xl text-sm font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
+                  isCopied 
+                  ? 'bg-green-500 text-white' 
+                  : 'bg-white text-blue-600 hover:bg-blue-50'
+                }`}
+              >
+                {isCopied ? 'コピー完了' : '原稿をコピー'}
+              </button>
+              <button 
+                onClick={exportToCSV}
+                className="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-black shadow-lg hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Canva用CSV出力
+              </button>
+            </div>
           </div>
 
           {/* LP Preview Frame */}
