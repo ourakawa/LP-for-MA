@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { STRATEGIES } from './constants';
 import { Header, Footer } from './components/Layout';
 import { LPData } from './types';
@@ -173,67 +173,70 @@ const LPSection: React.FC<{ data: LPData }> = ({ data }) => {
 };
 
 const App: React.FC = () => {
-  const [activeStrategy, setActiveStrategy] = useState<string>(STRATEGIES[0].id);
+  const [activeStrategy, setActiveStrategy] = useState<string>(() => {
+    const hash = window.location.hash.replace('#', '');
+    return STRATEGIES.find(s => s.id === hash) ? hash : STRATEGIES[0].id;
+  });
   const [isCopied, setIsCopied] = useState(false);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (STRATEGIES.find(s => s.id === hash)) {
+        setActiveStrategy(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleStrategyChange = (id: string) => {
+    setActiveStrategy(id);
+    window.location.hash = id;
+  };
 
   const currentData = STRATEGIES.find(s => s.id === activeStrategy) || STRATEGIES[0];
 
-  const copyToClipboard = () => {
-    const text = `
+  const generateReviewText = () => {
+    return `
 【LP構成パターン: ${currentData.label}】
 戦略：${currentData.strategy}
 
 ■メインビジュアル
 見出し：${currentData.hero.title}
 サブタイトル：${currentData.hero.subtitle}
-CTA：${currentData.hero.cta}
-
-■権威性・実績
-${currentData.authority.items.join(' / ')}
 
 ■料金
 初期費用：${currentData.pricing.initial}
 月額費用：${currentData.pricing.monthly}
-オファー：${currentData.pricing.offer}
+
+---
+【レビュー内容を入力してください】
     `.trim();
-    
-    navigator.clipboard.writeText(text).then(() => {
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generateReviewText()).then(() => {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     });
   };
 
-  const exportToCSV = () => {
-    // CSV Header
-    const headers = ['PatternName', 'Strategy', 'HeroTitle', 'HeroSubtitle', 'HeroCTA', 'PriceInitial', 'PriceMonthly', 'SpecialOffer'];
-    
-    // CSV Data rows
-    const rows = STRATEGIES.map(s => [
-      s.label,
-      s.strategy,
-      s.hero.title,
-      s.hero.subtitle,
-      s.hero.cta,
-      s.pricing.initial,
-      s.pricing.monthly,
-      s.pricing.offer
-    ]);
+  const copyLinkToClipboard = () => {
+    const url = `${window.location.origin}${window.location.pathname}#${activeStrategy}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setIsLinkCopied(true);
+      setTimeout(() => setIsLinkCopied(false), 2000);
+    });
+  };
 
-    // Construct CSV content
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
-
-    // Create download link
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `ray-soc-lp-data.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const openGitHubIssue = () => {
+    const title = encodeURIComponent(`【レビュー】LP案：${currentData.label}`);
+    const body = encodeURIComponent(generateReviewText());
+    // スクリーンショットに合わせて LP-for-MA に修正
+    const githubUrl = `https://github.com/ourakawa/LP-for-MA/issues/new?title=${title}&body=${body}`;
+    window.open(githubUrl, '_blank');
   };
 
   return (
@@ -245,7 +248,7 @@ ${currentData.authority.items.join(' / ')}
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
-              <div className="hidden sm:block">
+              <div className="hidden sm:block text-nowrap">
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1 leading-none">
                   Review Pattern
                 </div>
@@ -267,7 +270,7 @@ ${currentData.authority.items.join(' / ')}
               {STRATEGIES.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => setActiveStrategy(s.id)}
+                  onClick={() => handleStrategyChange(s.id)}
                   className={`whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black transition-all duration-200 ${
                     activeStrategy === s.id 
                       ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200' 
@@ -290,7 +293,7 @@ ${currentData.authority.items.join(' / ')}
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
             <div className="relative z-10">
               <h3 className="text-lg font-black mb-1">このパターンの戦略的狙い</h3>
-              <p className="text-blue-100 text-sm max-w-2xl leading-relaxed">
+              <p className="text-blue-100 text-sm max-w-2xl leading-relaxed font-medium">
                 {currentData.id === 'pattern-1' && '競合の安心感を「技術的な信頼」に変換。IT知識がなくても「ここなら大丈夫」と思わせるエモーショナルな訴求。'}
                 {currentData.id === 'pattern-2' && '初期コストだけでなく、SOC監視やSSL更新まで含めたトータルコストの優位性をロジカルに示すコスパ訴求。'}
                 {currentData.id === 'pattern-3' && 'VPNのリスクが叫ばれる昨今の社会情勢をフックに、経営層や情シスにWAFの必要性を再定義させる課題解決型。'}
@@ -298,23 +301,29 @@ ${currentData.authority.items.join(' / ')}
                 {currentData.id === 'pattern-5' && '技術者やCTOに向け、AIとホワイトハッカーの知見という強力なUSPを前面に出したハイスペック訴求。'}
               </p>
             </div>
-            <div className="flex shrink-0 gap-2">
+            <div className="flex flex-wrap shrink-0 gap-2 relative z-10">
               <button 
-                onClick={copyToClipboard}
-                className={`px-6 py-3 rounded-xl text-sm font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
-                  isCopied 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-white text-blue-600 hover:bg-blue-50'
+                onClick={copyLinkToClipboard}
+                className={`px-5 py-3 rounded-xl text-xs font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
+                  isLinkCopied ? 'bg-green-500 text-white' : 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
                 }`}
               >
-                {isCopied ? 'コピー完了' : '原稿をコピー'}
+                {isLinkCopied ? 'URLをコピーしました' : 'この案を共有'}
               </button>
               <button 
-                onClick={exportToCSV}
-                className="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-black shadow-lg hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2"
+                onClick={copyToClipboard}
+                className={`px-5 py-3 rounded-xl text-xs font-black shadow-lg transition-all active:scale-95 flex items-center gap-2 ${
+                  isCopied ? 'bg-green-500 text-white' : 'bg-white text-blue-600 hover:bg-blue-50'
+                }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Canva用CSV出力
+                {isCopied ? 'コピー完了' : '原稿コピー'}
+              </button>
+              <button 
+                onClick={openGitHubIssue}
+                className="px-5 py-3 bg-slate-900 text-white rounded-xl text-xs font-black shadow-lg hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2 border border-slate-700"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GitHubレビュー
               </button>
             </div>
           </div>

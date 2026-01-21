@@ -1,20 +1,26 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# Ray-SOC LP Review Studio
 
-This contains everything you need to run your app locally.
+## 🚀 公開手順とセキュリティについて
 
-View your app in AI Studio: https://ai.studio/apps/drive/101YXu0lG8caPcnIxBxrXVDBhzUnKNU-3
+このリポジトリをWebサイトとして公開する方法は2つあります。
 
-## Run Locally
+### プランA：GitHub Pages を使う（リポジトリを公開しても良い場合）
+1.  **[Settings]** > **[General]** > **[Danger Zone]** で **Make public** を実行。
+2.  **[Settings]** > **[Pages]** で `main` ブランチを選択して保存。
+*   **注意**: コードおよびLPの構成案（戦略）が全世界に公開されます。
 
-**Prerequisites:**  Node.js
+### プランB：Vercel / Netlify を使う（リポジトリを非公開のままにしたい場合）
+1.  [Vercel](https://vercel.com/) にアクセスし、GitHubアカウントでログイン。
+2.  このリポジトリ（PrivateのままでOK）を選択して `Deploy`。
+*   **メリット**: リポジトリの内容（ソースコード）は隠したまま、レビュー用のURLだけを関係者に共有できます。
 
+## 🛡️ セキュリティ・チェックリスト
+公開（Public）に設定する前に以下を確認してください：
+- [ ] `constants.tsx` の内容（価格や戦略）は社外秘ではないか？
+- [ ] ソースコード内に本物のAPIキーやパスワードが書き込まれていないか？
+- [ ] `Layout.tsx` 等に個人の電話番号やメールアドレスが含まれていないか？
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 🛠 使い方
+- **URL共有**: `https://<あなたのユーザー名>.github.io/LP-for-MA/#pattern-2`
+- **レビュー投稿**: アプリ内の「GitHubレビュー」ボタンを押すと、Issue作成画面へ遷移します。リポジトリがPublicの場合、Issueの内容も公開されます。
